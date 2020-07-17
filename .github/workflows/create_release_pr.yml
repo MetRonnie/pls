@@ -105,7 +105,12 @@ jobs:
         WORKFLOW: ${{ github.workflow }}
         AUTHOR: ${{ github.event.sender.login }}
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      run: node .github/create_release_pr.js
+      run: node .github/asdasd.js
+
+    - name: edbug
+      if: always()
+      run: |
+        echo "create-pr: ${{ steps.create-pr.outcome != 'success' }}, push: ${{ steps.push.outcome == 'success' }}"
 
     - name: (On fail) Delete failed PR branch on origin, if it was pushed
       if: steps.create-pr.outcome != 'success' && steps.push.outcome == 'success'
