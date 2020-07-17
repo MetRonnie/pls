@@ -10,13 +10,14 @@ env:
   # Best not to include the GH token here, only do it for the steps that need it
   REPOSITORY: ${{ github.repository }}
   MERGE_SHA: ${{ github.event.pull_request.merge_commit_sha }}
-  PR_BRANCH_PREFIX: 'prepare-'
 
 jobs:
   draft-release:
-    if: github.event.pull_request.merged == true && startsWith(github.head_ref, env.PR_BRANCH_PREFIX)
+    if: github.event.pull_request.merged == true && startsWith(github.head_ref, 'prepare-') # Can't use top-level env here
     runs-on: ubuntu-latest
     timeout-minutes: 5
+    env:
+      PR_BRANCH_PREFIX: 'prepare-'
     steps:
     - name: Get the version number
       run: |
@@ -75,8 +76,7 @@ jobs:
             console.log(`::error:: ${stderr}`);
             throw err.message;
           }
-          console.log('::group name=exec_debug_info::')
-          console.log(cmd);
-          console.log(stdout);
+          console.log(`::group::exec ${request.slice(0, 15)}...`);
+          console.log(request, '\n\n', stdout);
           console.log('::endgroup::');
         });
