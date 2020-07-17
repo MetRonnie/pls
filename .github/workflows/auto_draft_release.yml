@@ -46,7 +46,7 @@ jobs:
       env:
         RELEASE_STATUS: ${{ steps.create-release.outcome }}
         RELEASE_URL: ${{ steps.create-release.outputs.html_url }}
-        ASSIGNEE: ${{ github.event.pull_request.assignee }}
+        ASSIGNEE: ${{ github.event.pull_request.assignees[0].login }}
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       run: |
         const {exec} = require('child_process');
