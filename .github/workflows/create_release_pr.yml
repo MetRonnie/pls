@@ -24,7 +24,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
-    - name: Sanitise workflow inputs
+    - name: Sanitise workflow inputs # Should be first step
       shell: node {0}
       env:
         VERSION: ${{ github.event.inputs.version }}
@@ -93,8 +93,8 @@ jobs:
             throw err.message;
           }
           console.log(`::group::exec ${request.slice(0, 15)}...`);
-          console.log(request, '\n\n', stdout);
-          console.log('::endgroup::');  // logging ever so slightly asynchronous - grouping gets messed up
+          console.log(request, '\n\n', JSON.stringify(stdout, null, 2));
+          console.log('::endgroup::');
 
           const releases = JSON.parse(stdout).releases;
           if (env.SETUP_PY_VERSION in releases) {
