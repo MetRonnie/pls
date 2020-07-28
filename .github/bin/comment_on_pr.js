@@ -1,4 +1,4 @@
-const {execSync, curlOpts} = require('./util');
+const {execSync, stringify, curlOpts} = require('./util');
 const {env} = process;
 const pr_event = JSON.parse(env.PR_EVENT);
 
@@ -47,15 +47,15 @@ const bodyText = () => {
     return [title, content, footer].join('');
 };
 
-const payload = JSON.stringify({
+const payload = {
     body: bodyText()
-});
+};
 
 execSync(`curl -X POST \
     ${pr_event.comments_url} \
     -H "authorization: Bearer $GITHUB_TOKEN" \
     -H "content-type: application/json" \
-    --data '${payload}' \
+    --data '${stringify(payload)}' \
     ${curlOpts}`
 );
 
@@ -63,15 +63,15 @@ execSync(`curl -X POST \
 
 function closeMilestone() {
     if (pr_event.milestone) {
-        const patch = JSON.stringify({
+        const payload = {
             state: 'closed'
-        });
+        };
         try {
             execSync(`curl -X PATCH \
                 https://api.github.com/repos/${env.REPOSITORY}/milestones/${pr_event.milestone} \
                 -H "authorization: Bearer $GITHUB_TOKEN" \
                 -H "content-type: application/json" \
-                --data '${patch}' \
+                --data '${stringify(payload)}' \
                 ${curlOpts}`
             );
             return true;
@@ -84,14 +84,14 @@ function closeMilestone() {
 }
 
 function updatePRTitle() {
-    const patch = JSON.stringify({
+    const payload = {
         title: `[${env.JOB_STATUS}] ${pr_event.title}`
-    });
+    };
     execSync(`curl -X PATCH \
         ${pr_event.url} \
         -H "authorization: Bearer $GITHUB_TOKEN" \
         -H "content-type: application/json" \
-        --data '${patch}' \
+        --data '${stringify(payload)}' \
         ${curlOpts}`
     );
 }
