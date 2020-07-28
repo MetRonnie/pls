@@ -84,7 +84,6 @@ jobs:
     - name: Check setup.py version against PyPI.org
       shell: node {0}
       run: |
-        console.log(process.cwd());
         const {execSync, curlOpts} = require('${{ github.workspace }}/.github/bin/util');
         const {env} = process;
 
