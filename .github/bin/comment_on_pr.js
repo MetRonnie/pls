@@ -2,8 +2,17 @@ const {execSync, curlOpts} = require('./util');
 const {env} = process;
 const pr_event = JSON.parse(env.PR_EVENT);
 
+let isMilestoneClosed;
+if (env.JOB_STATUS === 'success') {
+    isMilestoneClosed = closeMilestone();
+} else {
+    updatePRTitle();
+}
+
 const nextSteps = `
-Next step for @${pr_event.assignees[0].login}: [view/edit the GitHub release description](${env.RELEASE_URL}) as appropriate
+Next steps for @${pr_event.assignees[0].login}:
+- [view/edit the GitHub release description](${env.RELEASE_URL}) as appropriate
+- ${isMilestoneClosed ? '✔️ Milestone automatically closed' : 'ℹ️ Close the milestone'}
 `;
 
 const manualInstructions = `
@@ -48,7 +57,31 @@ execSync(`curl -X POST \
     ${curlOpts}`
 );
 
-if (env.JOB_STATUS !== 'success') {
+
+
+function closeMilestone() {
+    if (pr_event.milestone) {
+        const patch = JSON.stringify({
+            state: 'closed'
+        });
+        try {
+            execSync(`curl -X PATCH \
+                https://api.github.com/repos/${env.REPOSITORY}/milestones/${pr_event.milestone} \
+                -H "authorization: Bearer $GITHUB_TOKEN" \
+                -H "content-type: application/json" \
+                --data '${patch}' \
+                ${curlOpts}`
+            );
+            return true;
+        } catch (err) {
+            console.log(`::warning:: Error closing milestone ${pr_event.milestone}`);
+            console.log(err, '\n');
+        }
+    }
+    return false;
+}
+
+function updatePRTitle() {
     const patch = JSON.stringify({
         title: `[${env.JOB_STATUS}] ${pr_event.title}`
     });
