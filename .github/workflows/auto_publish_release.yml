@@ -62,16 +62,13 @@ jobs:
         draft: false
 
     - name: Publish distribution to PyPI
-      continue-on-error: true
+      # continue-on-error: true
       id: pypi-publish
       uses: pypa/gh-action-pypi-publish@v1.3.1
       with:
         user: __token__ # uses the API token feature of PyPI - least permissions possible
         password: ${{ secrets.PYPI_TOKEN }}
         repository_url: https://test.pypi.org/legacy/
-
-    - name: Log any outputs of PyPI publish
-      run: echo "${{ toJson(steps.pypi-publish.outputs) }}"
 
     - name: Comment on the release PR with the results
       if: always()
