@@ -1,6 +1,5 @@
-const {execSync} = require('child_process');
+const {execSync, curlOpts} = require('./util');
 const {env} = process;
-const curlOpts = '--silent --fail --show-error'
 
 const milestone = getMilestone();
 
@@ -17,7 +16,7 @@ const milestoneText = () => {
 };
 
 const bodyText = `
-### ⚡ Merging this PR will automatically create a GitHub Release ⚡
+### ⚡ Merging this PR will automatically create a GitHub Release & publish to PyPI ⚡
 
 This PR was created by the \`${env.WORKFLOW}\` workflow, triggered by @${env.AUTHOR}
 
@@ -30,7 +29,7 @@ This PR was created by the \`${env.WORKFLOW}\` workflow, triggered by @${env.AUT
 
 - [ ] Changelog up-to-date?
   Examine pull requests made since the last release
-  "Released on" date automatically set: ${env.CHANGELOG_DATE ? `✔️ \`${env.CHANGELOG_DATE}\`` : '⚠️ failed'}
+  "Released on" date updated? ${env.CHANGELOG_DATE ? `✔️ \`${env.CHANGELOG_DATE}\`` : `⚠️ couldn't automatically set date`}
 
 - [ ] All contributors listed?
 
@@ -58,7 +57,7 @@ const request = `curl -X POST \
     ${curlOpts}`;
     // Don't use env.GITHUB_TOKEN above as that might print in log.
 
-const pr = JSON.parse(exec(request));
+const pr = JSON.parse(execSync(request));
 setMilestoneAndAssignee(pr.number);
 
 
@@ -71,7 +70,7 @@ function getMilestone() {
 
     let response;
     try {
-        response = JSON.parse(exec(request));
+        response = JSON.parse(execSync(request));
     } catch (err) {
         console.log(`::warning:: Error getting milestones`);
         console.log(err, '\n');
@@ -94,29 +93,11 @@ function setMilestoneAndAssignee(prNumber) {
         assignees: [env.AUTHOR]
     });
 
-    const request = `curl -X PATCH \
+    execSync(`curl -X PATCH \
         https://api.github.com/repos/${env.REPOSITORY}/issues/${prNumber} \
         -H "authorization: Bearer $GITHUB_TOKEN" \
         -H "content-type: application/json" \
         --data '${payload}' \
-        ${curlOpts}`;
-
-    exec(request);
-}
-
-function exec(cmd) {
-    let stdout;
-    try {
-        stdout = execSync(cmd, {stdio: 'pipe', encoding: 'utf8'});
-    } catch (err) {
-        console.log(`::error:: ${err.stderr ? err.stderr : 'Error executing command'}`);
-        throw err.message;
-    }
-    console.log(`::group::exec ${cmd.slice(0, 15)}...`);
-    console.log('=====================  cmd  ======================');
-    console.log(cmd);
-    console.log('===================== stdout =====================');
-    console.log(stdout);
-    console.log('::endgroup::');
-    return stdout;
+        ${curlOpts}`
+    );
 }
