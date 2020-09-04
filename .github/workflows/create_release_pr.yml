@@ -46,11 +46,6 @@ jobs:
       with:
         python-version: '3.x'
 
-    - name: Install/setup utils
-      run: |
-        pip install -q packaging
-        echo "::add-path::${{ github.workspace }}/.github/bin"
-
     - name: Configure git
       run: |
         git config --global user.name "github-actions[bot]"
@@ -64,7 +59,7 @@ jobs:
     - run: cat metomi/isodatetime/__init__.py
 
     - name: Try the action
-      uses: MetRonnie/test-action@master
+      uses: MetRonnie/test-action/set-python-package-version@master
       with:
         version: ${{ env.VERSION }}
         init-file: 'metomi/isodatetime/__init__.py'
