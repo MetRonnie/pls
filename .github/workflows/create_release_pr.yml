@@ -13,9 +13,9 @@ on:
 
 env:
   # Best not to include the GH token here, only do it for the steps that need it
-  PYPI_PACKAGE_NAME: 'metomi-isodatetime'
+  # PYPI_PACKAGE_NAME: 'metomi-isodatetime'
   REPOSITORY: ${{ github.repository }}
-  INIT_FILE: 'metomi/isodatetime/__init__.py'
+  # INIT_FILE: 'metomi/isodatetime/__init__.py'
   CHANGELOG_FILE: CHANGES.md
   PR_BRANCH_PREFIX: 'prepare-'
 
@@ -61,42 +61,20 @@ jobs:
 
         echo "::set-env name=HEAD_REF::$HEAD_REF"
 
-    - name: Update version in __init__.py
-      run: |
-        pattern="(__version__ ?= ?['\"]).*(['\"])"
-        sed -i -E "s/${pattern}/\1${VERSION}\2/" "$INIT_FILE"
+    - run: cat metomi/isodatetime/__init__.py
 
-        if [[ -z $(git diff --stat -- "$INIT_FILE") ]]; then
-          echo "::error:: No changes to ${INIT_FILE} occurred"
-          exit 1
-        fi
+    - name: Try the action
+      uses: MetRonnie/test-action@master
+      with:
+        version: ${{ env.VERSION }}
+        init-file: 'metomi/isodatetime/__init__.py'
+        pypi-package-name: 'metomi-isodatetime'
+        stage-changes: true
 
-        git add "$INIT_FILE"
+    - run: git status
 
-    - name: Get setup.py version
-      # Usually needs to be after updating version in __init__.py
-      run: |
-        SETUP_PY_VERSION=$( echo "1!$VERSION" ) # $( python setup.py --version )
-        echo "::set-env name=SETUP_PY_VERSION::$SETUP_PY_VERSION"
-        # Check version number is valid:
-        cmp_py_versions "$SETUP_PY_VERSION" "$SETUP_PY_VERSION"
+    - run: cat metomi/isodatetime/__init__.py
 
-    - name: Check version doesn't already exist on PyPI.org
-      shell: node {0}
-      run: |
-        const {execSync, curlOpts} = require('${{ github.workspace }}/.github/lib/util');
-        const {env} = process;
-
-        const request = `curl -X GET \
-          https://pypi.org/pypi/${env.PYPI_PACKAGE_NAME}/json \
-          ${curlOpts}`
-        const {releases} = JSON.parse(execSync(request));
-        for (release in releases) {
-          const diff = execSync(`cmp_py_versions ${release} ${env.SETUP_PY_VERSION}`);
-          if (!diff) {
-            throw `${env.SETUP_PY_VERSION} already exists on PyPI.org`;
-          }
-        }
 
     # - name: Update "released on" date in changelog
     #   continue-on-error: true
