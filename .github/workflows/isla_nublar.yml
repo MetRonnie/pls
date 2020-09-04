@@ -29,11 +29,13 @@ jobs:
       with:
         ref: ${{ env.BASE_REF }}
 
+    - uses: actions/setup-python@v2
+      with:
+        python-version: '3.x'
+
     - run: echo "$PWD"
 
     - uses: MetRonnie/test-action@master
-
-    # - run: cmp_py_versions 1.0 1.1
 
     - run: echo "$GENNARO"
 
@@ -42,3 +44,5 @@ jobs:
         import packaging.version as ver
         foo = ver.Version('1.0a3')
         print(foo)
+
+    - run: cmp_py_versions_b 1.0 1.1
