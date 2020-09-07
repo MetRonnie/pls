@@ -14,7 +14,7 @@ on:
 env:
   # Best not to include the GH token here, only do it for the steps that need it
   # PYPI_PACKAGE_NAME: 'metomi-isodatetime'
-  REPOSITORY: ${{ github.repository }}
+  # REPOSITORY: ${{ github.repository }}
   # INIT_FILE: 'metomi/isodatetime/__init__.py'
   CHANGELOG_FILE: CHANGES.md
   PR_BRANCH_PREFIX: 'prepare-'
@@ -75,14 +75,10 @@ jobs:
       id: push
       uses: MetRonnie/test-action/commit-push@master
 
-    # - name: Create pull request
-    #   id: create-pr
-    #   env:
-    #     WORKFLOW: ${{ github.workflow }}
-    #     RUN_NUMBER: ${{ github.run_number }}
-    #     AUTHOR: ${{ github.event.sender.login }}
-    #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-    #   run: node .github/lib/create_release_pr.js
+    - name: Create pull request
+      uses: MetRonnie/test-action/create-release-pr@master
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
     # - name: (On fail) Delete failed PR branch on origin, if it was pushed
     #   if: always() && steps.create-pr.outcome != 'success' && steps.push.outcome == 'success'
