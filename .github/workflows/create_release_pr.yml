@@ -46,15 +46,10 @@ jobs:
       with:
         python-version: '3.x'
 
-    - name: Configure git
-      run: |
-        git config --global user.name "github-actions[bot]"
-        git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
-
-        HEAD_REF="${PR_BRANCH_PREFIX}${VERSION}"
-        git checkout -b "$HEAD_REF"
-
-        echo "::set-env name=HEAD_REF::$HEAD_REF"
+    - name: Create & checkout PR branch
+      uses: MetRonnie/test-action/checkout-pr-branch@master
+      with:
+        version: ${{ env.VERSION }}
 
     - name: Set the package version
       uses: MetRonnie/test-action/set-python-package-version@master
@@ -71,17 +66,14 @@ jobs:
         changelog-file: CHANGES.md
         stage-changes: true
 
-    # - name: Test the build
-    #   run: |
-    #     cd $( mktemp -d )
-    #     python3 "${{ github.workspace }}/setup.py" bdist_wheel
+    - name: Test the build
+      uses: MetRonnie/test-action/build-python-package@master
+      with:
+        dry-run: true
 
-    # - name: Commit & push
-    #   id: push
-    #   run: |
-    #     git status
-    #     git commit -m "Prepare release ${VERSION}" -m "Workflow: ${{ github.workflow}}, run: ${{ github.run_number }}"
-    #     git push origin "$HEAD_REF"
+    - name: Commit & push
+      id: push
+      uses: MetRonnie/test-action/commit-push@master
 
     # - name: Create pull request
     #   id: create-pr

@@ -44,7 +44,7 @@ jobs:
         python-version: '3.x'
 
     - name: Build
-      run: python3 setup.py bdist_wheel sdist
+      uses: MetRonnie/test-action/build-python-package@master
 
     - name: Publish distribution to PyPI
       continue-on-error: true
