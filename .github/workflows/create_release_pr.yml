@@ -58,22 +58,7 @@ jobs:
       with:
         dry-run: true
 
-    - name: Commit & push
-      id: push
-      uses: MetRonnie/test-action/commit-push@master
-
     - name: Create pull request
       uses: MetRonnie/test-action/create-release-pr@master
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-    # - name: (On fail) Delete failed PR branch on origin, if it was pushed
-    #   if: always() && steps.create-pr.outcome != 'success' && steps.push.outcome == 'success'
-    #     # Need status check function in if-condition otherwise won't run on fail
-    #   run: |
-    #     backup_sha=$( git rev-parse "origin/${HEAD_REF}" )
-    #     git push -d origin "$HEAD_REF"
-    #     echo "::warning:: Deleted the newly-pushed branch '${HEAD_REF}' because the workflow failed"
-    #     echo "If you need to recover the branch:"
-    #     echo "  git fetch origin ${backup_sha}"
-    #     echo "  git checkout -b ${HEAD_REF} ${backup_sha}"
