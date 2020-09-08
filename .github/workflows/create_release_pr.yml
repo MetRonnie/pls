@@ -16,8 +16,8 @@ env:
   # PYPI_PACKAGE_NAME: 'metomi-isodatetime'
   # REPOSITORY: ${{ github.repository }}
   # INIT_FILE: 'metomi/isodatetime/__init__.py'
-  CHANGELOG_FILE: CHANGES.md
-  PR_BRANCH_PREFIX: 'prepare-'
+  # CHANGELOG_FILE: CHANGES.md
+  # PR_BRANCH_PREFIX: 'prepare-'
 
 jobs:
   create-release-pr:
@@ -48,23 +48,18 @@ jobs:
 
     - name: Create & checkout PR branch
       uses: MetRonnie/test-action/checkout-pr-branch@master
-      with:
-        version: ${{ env.VERSION }}
 
     - name: Set the package version
       uses: MetRonnie/test-action/set-python-package-version@master
       with:
-        version: ${{ env.VERSION }}
         init-file: 'metomi/isodatetime/__init__.py'
         pypi-package-name: 'metomi-isodatetime'
-        stage-changes: true
 
     - name: Update "released on" date in changelog
       continue-on-error: true
       uses: MetRonnie/test-action/update-changelog-release-date@master
       with:
         changelog-file: CHANGES.md
-        stage-changes: true
 
     - name: Test the build
       uses: MetRonnie/test-action/build-python-package@master
