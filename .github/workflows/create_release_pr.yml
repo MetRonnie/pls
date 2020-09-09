@@ -11,14 +11,6 @@ on:
         required: false
         default: 'master'
 
-# env:
-  # Best not to include the GH token here, only do it for the steps that need it
-  # PYPI_PACKAGE_NAME: 'metomi-isodatetime'
-  # REPOSITORY: ${{ github.repository }}
-  # INIT_FILE: 'metomi/isodatetime/__init__.py'
-  # CHANGELOG_FILE: CHANGES.md
-  # PR_BRANCH_PREFIX: 'prepare-'
-
 jobs:
   create-release-pr:
     runs-on: ubuntu-latest
@@ -26,7 +18,7 @@ jobs:
     steps:
 
     - name: Sanitise workflow inputs # Should be 1st step
-      uses: MetRonnie/test-action/sanitize-inputs@master
+      uses: MetRonnie/release-actions/stage-1/sanitize-inputs@content
 
     - name: Checkout repo
       uses: actions/checkout@v2.3.1
@@ -39,26 +31,26 @@ jobs:
         python-version: '3.x'
 
     - name: Create & checkout PR branch
-      uses: MetRonnie/test-action/checkout-pr-branch@master
+      uses: MetRonnie/release-actions/stage-1/checkout-pr-branch@content
 
     - name: Set the package version
-      uses: MetRonnie/test-action/set-python-package-version@master
+      uses: MetRonnie/release-actions/stage-1/set-python-package-version@content
       with:
         init-file: 'metomi/isodatetime/__init__.py'
         pypi-package-name: 'metomi-isodatetime'
 
     - name: Update "released on" date in changelog
       continue-on-error: true
-      uses: MetRonnie/test-action/update-changelog-release-date@master
+      uses: MetRonnie/release-actions/stage-1/update-changelog-release-date@content
       with:
         changelog-file: CHANGES.md
 
     - name: Test the build
-      uses: MetRonnie/test-action/build-python-package@master
+      uses: MetRonnie/release-actions/build-python-package@content
       with:
         dry-run: true
 
     - name: Create pull request
-      uses: MetRonnie/test-action/create-release-pr@master
+      uses: MetRonnie/release-actions/stage-1/create-release-pr@content
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

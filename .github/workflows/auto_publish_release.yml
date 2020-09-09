@@ -22,7 +22,7 @@ jobs:
     steps:
 
     - name: Get the version number
-      uses: MetRonnie/test-action/get-version-from-pr@master
+      uses: MetRonnie/release-actions/stage-2/get-version-from-pr@content
 
     - name: Checkout repo
       uses: actions/checkout@v2.3.2
@@ -35,7 +35,7 @@ jobs:
         python-version: '3.x'
 
     - name: Build
-      uses: MetRonnie/test-action/build-python-package@master
+      uses: MetRonnie/release-actions/build-python-package@content
 
     - name: Publish distribution to PyPI
       continue-on-error: true
@@ -59,7 +59,7 @@ jobs:
 
     - name: Comment on the release PR with the results & next steps
       if: always()
-      uses: MetRonnie/test-action/comment-on-pr@master
+      uses: MetRonnie/release-actions/stage-2/comment-on-pr@content
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
