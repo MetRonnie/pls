@@ -25,4 +25,33 @@ jobs:
     timeout-minutes: 5
     steps:
 
-    - uses: MetRonnie/test-action/set-python-package-version@v1
+      - uses: actions/checkout@v2
+
+      - run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          branch_name="alan-wake"
+          echo "BRANCH_NAME=$branch_name" >> $GITHUB_ENV
+
+          git checkout -b "$branch_name"
+          echo "Turn the light on" > departure.txt
+
+          git add -A
+          git commit -a -m "Chapter 1"
+          git push origin "$branch_name"
+
+      - name: Create pull request
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          curl -X POST \
+            https://api.github.com/repos/${{ github.repository }}/pulls \
+            -H "authorization: Bearer ${GH_TOKEN}" \
+            -H 'content-type: application/json' \
+            --data '{
+              "title": "Auto PR: update copyright year",
+              "head": "${{ env.BRANCH_NAME }}",
+              "base": "master",
+              "body": "Happy new year!"
+            }'
